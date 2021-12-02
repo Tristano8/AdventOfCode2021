@@ -4,12 +4,12 @@ import Data.List
 -- Zip with the list compared to the list that has the first element dropped
 
 -- Part 1
--- main :: IO ()
--- main = do
---   file <- readFile "./day1.txt"
---   let numbers = read <$> lines file :: [Int]
---       zipped = zipWith (-) numbers (drop 1 numbers)
---     in print (length $ filter (<0) zipped)
+main' :: IO ()
+main' = do
+  file <- readFile "./day1.txt"
+  let numbers = read <$> lines file :: [Int]
+      zipped = zipWith (-) numbers (drop 1 numbers)
+    in print (length $ filter (<0) zipped)
 
 -- Part 2
 
