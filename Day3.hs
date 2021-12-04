@@ -10,13 +10,14 @@ getMostFrequent = head . maximumBy (comparing length) . group . sort
 getLeastFrequent :: (Eq a, Ord a) => [a] -> a
 getLeastFrequent = head . minimumBy (comparing length) . group . sort
 
-getGammaRate :: (Eq a, Ord a)=> [[a]] -> [a]
-getGammaRate [rate] = rate
-getGammaRate codes = getMostFrequent (head <$> codes) : getGammaRate (tail <$> codes)
+getRate :: ([a] -> a) -> [[a]] -> [a]
+getRate f codes = f (head <$> codes) : getRate f (tail <$> codes)
+
+getGammaRate :: (Eq a, Ord a) => [[a]] -> [a]
+getGammaRate = getRate getMostFrequent
 
 getEpsilonRate :: (Eq a, Ord a) => [[a]] -> [a]
-getEpsilonRate [rate] = rate
-getEpsilonRate codes = getLeastFrequent (head <$> codes) : getEpsilonRate (tail <$> codes)
+getEpsilonRate = getRate getLeastFrequent
 
 getOxygenGeneratorRate :: [[Char]] -> [Char]
 getOxygenGeneratorRate [rate] = rate
@@ -36,17 +37,19 @@ bintodec :: [Int] -> Int
 bintodec = foldl' (\y x -> x + 2*y) 0
 
 
--- main' :: IO ()
--- main' = do
---   file <- readFile "./day3.txt"
+main' :: IO ()
+main' = do
+  file <- readFile "./day3.txt"
   
---   let codes = lines file
---       parseAsDec = bintodec . (digitToInt <$>)
+  let codes = lines file
+      parseAsDec = bintodec . (digitToInt <$>)
 
---       gamma = parseAsDec "000010111101"
---       epsilon = parseAsDec "111101000010"
+      gamma = parseAsDec . getGammaRate
+      epsilon = parseAsDec . getEpsilonRate
 
---       in print $ gamma * epsilon
+      answer = (*) <$> gamma <*> epsilon
+
+      in print $ answer codes
 
 
 -- Part 2
