@@ -11,7 +11,9 @@ getLeastFrequent :: (Eq a, Ord a) => [a] -> a
 getLeastFrequent = head . minimumBy (comparing length) . group . sort
 
 getRate :: ([a] -> a) -> [[a]] -> [a]
-getRate f codes = f (head <$> codes) : getRate f (tail <$> codes)
+getRate f codes
+  | any null codes = []
+  | otherwise = f (head <$> codes) : getRate f (tail <$> codes)
 
 getGammaRate :: (Eq a, Ord a) => [[a]] -> [a]
 getGammaRate = getRate getMostFrequent
