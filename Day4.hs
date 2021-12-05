@@ -44,7 +44,7 @@ checkBoard (Board rows cols) =  any isFilled rows || any isFilled cols
 runGame :: [Board] -> [Int] -> [State]
 runGame boards numbers = go numbers boards where
   go [] bs = []
-  go (n:ns) bs = State n updatedBoards : go ns updatedBoards where 
+  go (n:ns) bs = State n updatedBoards : go ns (filter (not . checkBoard) updatedBoards) where 
     updatedBoards = markBoard n <$> bs
 
 getWinner :: [State] -> (Board, Int)
@@ -69,3 +69,27 @@ main' = do
 
       (winningBoard, winningNumber) = getWinner $ runGame gameBoards numberInts  
     in print $ getTotal winningBoard * winningNumber
+
+-- Part 2
+
+
+findLastWinningBoard :: [State] -> (Board, Int)
+findLastWinningBoard = go where
+  go ((State ln [b]) : _) | checkBoard b = (b,ln)
+  go (_ : ss) = go ss
+  go [] = error "No winner"
+
+main :: IO ()
+main = do
+  inputs <- readFile "./day4.txt"
+
+  let (numbers : boardData) = lines inputs
+      ns = filter (not . null) boardData
+
+      numberInts = read <$> splitCommas numbers :: [Int]
+      gameBoards = buildBoards ns
+
+      gameStates = runGame gameBoards numberInts
+
+      (lastBoard, lastWinningNumber) = findLastWinningBoard gameStates
+    in print $ getTotal lastBoard * lastWinningNumber
