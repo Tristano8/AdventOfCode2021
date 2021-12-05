@@ -1,12 +1,13 @@
 import Data.List
+import Data.Maybe
 
 -- Part 1
 
-type Row = Int
-type Col = Int
-data BingoNumber = BingoNumber String (Row, Col) deriving (Eq, Show)
+type BingoNumber = Maybe Int
 
-newtype Board = Board [BingoNumber] deriving (Eq, Show)
+data Board = Board [[BingoNumber]] [[BingoNumber]] deriving (Eq, Show)
+
+data State = State { lastNumber :: Int, boards :: [Board] } deriving (Show)
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
 wordsWhen p s =  case dropWhile p s of
@@ -17,50 +18,54 @@ wordsWhen p s =  case dropWhile p s of
 splitCommas :: String -> [String]
 splitCommas = wordsWhen (== ',')
 
-buildBoard :: [String] -> Board
-buildBoard ns = Board $ go ns 1 1 where
-  go [] _ _ = []
-  go (x:xs) row col = BingoNumber x (row, col) : go xs (if col == 5 then row + 1 else row) (if col == 5 then 1 else col + 1)
+buildBoard :: [[String]] -> Board
+buildBoard rows = Board rowNs colNs where
+  rowNs = ((<$>) . (<$>)) (Just . read) rows
+  colNs = transpose rowNs
 
-buildBoards :: [[String]] -> [Board]
+buildBoards :: [String] -> [Board]
 buildBoards [] = []
-buildBoards boards = buildBoard (concat $ take 5 boards) : buildBoards (drop 5 boards)
+buildBoards boards = buildBoard boardRows : buildBoards (drop 5 boards) where
+  boardRows = words <$> take 5 boards
+  rest = drop 5 boards
 
-sameRow :: BingoNumber -> BingoNumber -> Bool
-sameRow (BingoNumber _ (r, _)) (BingoNumber _ (r', _)) = r == r'
+markBoard :: Int -> Board -> Board
+markBoard n (Board rows cols) = Board rows' cols' where
+  rows' = ((<$>) . (<$>)) mark rows
+  cols' = ((<$>) . (<$>)) mark cols
+  mark i = case i of
+    Nothing -> Nothing
+    (Just x) -> if x == n then Nothing else Just x
 
-sameColumn :: BingoNumber -> BingoNumber -> Bool
-sameColumn (BingoNumber _ (_, c)) (BingoNumber _ (_, c')) = c == c'
+checkBoard :: Board -> Bool
+checkBoard (Board rows cols) =  any isFilled rows || any isFilled cols
+  where isFilled = all isNothing
 
-checkBoard :: [String] -> Board -> Bool
-checkBoard numbers (Board board) =  hasWinningLength filledRows || hasWinningLength filledColumns
-  where matchingNumbers = filter (\(BingoNumber v _) -> v `elem` numbers) board
-        filledRows = groupBy sameRow matchingNumbers
-        filledColumns = groupBy sameColumn matchingNumbers
-        hasWinningLength = any ((==5) . length)
+runGame :: [Board] -> [Int] -> [State]
+runGame boards numbers = go numbers boards where
+  go [] bs = []
+  go (n:ns) bs = State n updatedBoards : go ns updatedBoards where 
+    updatedBoards = markBoard n <$> bs
 
-checkWinner :: [Board] -> [String] -> Maybe Board
-checkWinner boards numbers = find (checkBoard numbers) boards
+getWinner :: [State] -> (Board, Int)
+getWinner [] = error "No winner - should not happen"
+getWinner ((State ln boards): ss) = case find checkBoard boards of
+  Nothing -> getWinner ss
+  Just winner -> (winner, ln)
 
-runGame :: [Board] -> [String] -> (Board, [String])
-runGame boards numbers = go numbers 1 where
-  go ns i = case checkWinner boards (take i ns) of
-    Nothing -> go ns (i + 1)
-    Just b -> (b, take i ns)
+getTotal ::  Board -> Int
+getTotal (Board r _) = sum leftovers where
+  leftovers = catMaybes $ concat r
 
-getTotal ::  Board -> [String] -> Int
-getTotal (Board board) winningNumbers = sum ((\(BingoNumber v _) -> read v) <$> leftoverNumbers) where
-  leftoverNumbers = filter (\(BingoNumber v _) -> v `notElem` winningNumbers ) board
-
-main :: IO ()
-main = do
+main' :: IO ()
+main' = do
   inputs <- readFile "./day4.txt"
 
   let (numbers : boardData) = lines inputs
-      ns = words <$> filter (not . null) boardData
+      ns = filter (not . null) boardData
+
+      numberInts = read <$> splitCommas numbers :: [Int]
       gameBoards = buildBoards ns
 
-      (winningBoard, winningNumbers) = runGame gameBoards (splitCommas numbers)
-  print winningNumbers
-  print winningBoard
-  print $ getTotal winningBoard winningNumbers
+      (winningBoard, winningNumber) = getWinner $ runGame gameBoards numberInts  
+    in print $ getTotal winningBoard * winningNumber
