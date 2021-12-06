@@ -33,14 +33,11 @@ getPointsInBetween (Line p1 p2) = if min p1 p2 == p1 then listPoints p1 p2 else 
                             y <- [y1, y1 + 1..y2]]
       | otherwise = getDiagonalPointsBetween (x1, y1) (x2, y2)
 
--- (0, 0) (9, 9) -> 1 2 3 4 5 6 7 8 9
--- (9, 7) (7, 9) -> 7 8 9  9 8 7
 getDiagonalPointsBetween :: (Int, Int) -> (Int, Int) -> [(Int, Int)]
 getDiagonalPointsBetween (x1, y1) (x2, y2) = [(x, y) | x <- [x1, x1 + 1..x2],
                                                         y <- [y1, y1 + m..y2],
                                                         x == x2 && y == y2 || gradient (x, y) (x2, y2) == m
                               ] where
-                                -- (1, 0) (9, 9)  gradient (0, 1) (1, 2)
     m = gradient (x1, y1) (x2, y2)
 
 gradient :: (Int, Int) -> (Int, Int) -> Int
