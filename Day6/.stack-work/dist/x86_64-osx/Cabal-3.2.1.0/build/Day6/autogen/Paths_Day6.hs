@@ -30,7 +30,7 @@ version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
 bindir     = "/Users/hughdavidson/dev/advent-of-code-2021/Day6/.stack-work/install/x86_64-osx/069580059aa71c27680050af25759bb89c3b64767cc8b3672616bfb5fb9329a0/8.10.7/bin"
-libdir     = "/Users/hughdavidson/dev/advent-of-code-2021/Day6/.stack-work/install/x86_64-osx/069580059aa71c27680050af25759bb89c3b64767cc8b3672616bfb5fb9329a0/8.10.7/lib/x86_64-osx-ghc-8.10.7/Day6-0.1.0.0-2on3CJuVWq6BR8NFdsRfbL-Day6"
+libdir     = "/Users/hughdavidson/dev/advent-of-code-2021/Day6/.stack-work/install/x86_64-osx/069580059aa71c27680050af25759bb89c3b64767cc8b3672616bfb5fb9329a0/8.10.7/lib/x86_64-osx-ghc-8.10.7/Day6-0.1.0.0-KxAcc1RGJhyJqJ8sDZml5p-Day6"
 dynlibdir  = "/Users/hughdavidson/dev/advent-of-code-2021/Day6/.stack-work/install/x86_64-osx/069580059aa71c27680050af25759bb89c3b64767cc8b3672616bfb5fb9329a0/8.10.7/lib/x86_64-osx-ghc-8.10.7"
 datadir    = "/Users/hughdavidson/dev/advent-of-code-2021/Day6/.stack-work/install/x86_64-osx/069580059aa71c27680050af25759bb89c3b64767cc8b3672616bfb5fb9329a0/8.10.7/share/x86_64-osx-ghc-8.10.7/Day6-0.1.0.0"
 libexecdir = "/Users/hughdavidson/dev/advent-of-code-2021/Day6/.stack-work/install/x86_64-osx/069580059aa71c27680050af25759bb89c3b64767cc8b3672616bfb5fb9329a0/8.10.7/libexec/x86_64-osx-ghc-8.10.7/Day6-0.1.0.0"
