@@ -15,10 +15,11 @@ data Display = Display SignalPattern OutputValue deriving (Eq, Show)
 
 parseDisplay :: Parser Display
 parseDisplay = do
-  signalPattern <- count 10 (token (some letter))
+  signalPattern <- count 10 segments
   _ <- token (char '|')
-  outputVal <- count 4 $ token (some letter)
-  return $ Display signalPattern outputVal
+  outputVal <- count 4 segments
+  return $ Display signalPattern outputVal where
+    segments = token (some letter)
 
 
 parseInput :: Parser [Display]
@@ -31,8 +32,13 @@ parseInput = some (token parseDisplay)
 -- part 1
 countUniqueSegments :: [Display] -> Int
 countUniqueSegments displays = sum $ foldr (\(Display _ ov) ds ->
-  length (filter (\s -> let segs = length s in segs == 2 || segs == 3 || segs == 4 || segs == 7) ov) : ds) [] displays
+  length (filter ((`elem` [2, 3, 4, 7]) . length) ov) : ds) [] displays
 
+main' = do
+  input <- fromMaybe [] <$> parseFromFile parseInput "./src/day8.txt"
+  print $ countUniqueSegments input
+
+-- part 2 
 main = do
   input <- fromMaybe [] <$> parseFromFile parseInput "./src/day8.txt"
   print $ countUniqueSegments input
