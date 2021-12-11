@@ -38,7 +38,16 @@ main' = do
   input <- fromMaybe [] <$> parseFromFile parseInput "./src/day8.txt"
   print $ countUniqueSegments input
 
--- part 2 
+-- part 2
+
+-- Couple of interesting solutions from Reddit:
+
+-- Count segment frequencies: each digit is uniquely identified by the count of the frequency of its segments
+
+-- Use set operations: the translated digits have the same subset/superset relation as the original ones
+
+-- Write a version in Prolog!
+
 main = do
   input <- fromMaybe [] <$> parseFromFile parseInput "./src/day8.txt"
   print $ countUniqueSegments input
