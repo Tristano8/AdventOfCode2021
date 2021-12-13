@@ -2,6 +2,7 @@ module Main where
 
 import Control.Applicative
 import Data.Functor
+import Data.List (foldl')
 import Data.Maybe
 import qualified Data.Set as S
 
@@ -33,7 +34,26 @@ parseInput = do
 
   pure $ Input (S.fromList points) folds
 
+performFold :: Fold -> Paper -> Paper
+performFold f = S.map (transform f) where
+  transform (Fold X i) p@(Point x y) | x < i = p
+                                   | otherwise = Point (i - (x - i)) y
+  transform (Fold Y i) p@(Point x y) | y < i = p
+                                   | otherwise = Point x (i - (y - i))
+
+-- Part 1
+part1 :: Input -> Int
+part1 (Input p f) = S.size $ performFold (head f) p
+
+
+-- Part 2
+performAllFolds :: Input -> Paper
+performAllFolds (Input p f) = foldl' (flip performFold) mempty f
+
+drawResult :: Paper -> String
+drawResult = undefined
+
 main :: IO ()
 main = do
   input <- fromMaybe (Input mempty mempty) <$> parseFromFile parseInput "./src/day13.txt"
-  print "OK"
+  print $ part1 input
