@@ -21,17 +21,28 @@ parseInput = do
   
 
 -- Part 1
-findPaths :: Caves -> [[String]]
-findPaths caves = followPath [] "start" where
+canVisitCave :: String -> [String] -> Bool
+canVisitCave cave visited = all isUpper cave || cave `notElem` visited
+
+findPaths :: (String -> [String] -> Bool) -> Caves -> [[String]]
+findPaths canVisit caves = followPath [] "start" where
   followPath visited cave =
     let connected = fromMaybe [] $ M.lookup cave caves
         neighbouringPaths = concatMap (followPath (cave : visited)) connected in
         if cave == "end" then [reverse (cave : visited)]
-        else if all isUpper cave || cave `notElem` visited then
+        else if canVisit cave visited then
           neighbouringPaths
           else [] 
+
+-- Part 2
+
+hasVisitedTwice :: String -> [String] -> Bool
+hasVisitedTwice cave = (==2) . length . filter (cave==)
+
+canVisitCave' :: String -> [String] -> Bool
+canVisitCave' cave visited = all isUpper cave || cave == "start" && null visited || cave /= "start" && (cave `notElem` visited || not (any (\c -> all isLower c && hasVisitedTwice c visited) visited))
 
 main :: IO ()
 main = do
   caves <- fromMaybe M.empty <$> parseFromFile parseInput "./src/day12.txt"
-  print $ length (filter (any (all isLower)) (findPaths caves))
+  print $ length (findPaths canVisitCave' caves)
