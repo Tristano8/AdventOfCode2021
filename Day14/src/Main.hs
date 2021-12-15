@@ -37,15 +37,11 @@ step template rules = let pairs = getPairs template
                           insertChars = fromMaybe [] $ traverse (`M.lookup` rules) pairs
                           in concat $ transpose [template, insertChars]
 
-times :: (a -> a) -> Int -> (a -> a)
-times f n = foldr (.) id (replicate n f)
-
 part1 :: Input -> Int
-part1 (Input template rules) = let polymer = times (flip step rules) 10 template
+part1 (Input template rules) = let polymer = (!!10) $ iterate' (`step` rules) template
                                    frequencies = group (sort polymer)
                                    result = sortOn length frequencies
                                    in length (head (reverse result)) - length (head result)
-
 
 part2 :: Input -> String
 part2 = undefined
@@ -53,4 +49,4 @@ part2 = undefined
 main :: IO ()
 main = do
   input@(Input template rules) <- fromMaybe (Input mempty mempty) <$> parseFromFile parseInput "./src/day14.txt"
-  print $ part2 input
+  print $ part1 input
