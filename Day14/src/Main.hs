@@ -1,5 +1,6 @@
 module Main where
 
+import Data.List
 import Data.Maybe
 import qualified Data.Map as M
 
@@ -25,7 +26,31 @@ parseInput = do
 
   pure $ Input template (M.fromList rules)
 
+-- NNGA -> ["NN", "NG", "GA"]
+getPairs :: Template -> [String]
+getPairs t = zipWith (\x y -> x : [y]) t (tail t)
+
+-- Part 1
+
+step :: Template -> Rules -> String
+step template rules = let pairs = getPairs template
+                          insertChars = fromMaybe [] $ traverse (`M.lookup` rules) pairs
+                          in concat $ transpose [template, insertChars]
+
+times :: (a -> a) -> Int -> (a -> a)
+times f n = foldr (.) id (replicate n f)
+
+part1 :: Input -> Int
+part1 (Input template rules) = let polymer = times (flip step rules) 10 template
+                                   frequencies = group (sort polymer)
+                                   result = sortOn length frequencies
+                                   in length (head (reverse result)) - length (head result)
+
+
+part2 :: Input -> String
+part2 = undefined
+
 main :: IO ()
 main = do
-  input <- fromMaybe (Input mempty mempty) <$> parseFromFile parseInput "./src/day14.txt"
-  print input
+  input@(Input template rules) <- fromMaybe (Input mempty mempty) <$> parseFromFile parseInput "./src/day14.txt"
+  print $ part2 input
