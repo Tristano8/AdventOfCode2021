@@ -85,9 +85,39 @@ sumVersion :: Packet -> Int
 sumVersion (Literal v _ _) = bitsToInt v
 sumVersion (Operator v _ xs) = bitsToInt v + sum (sumVersion <$> xs)
 
+
+-- Part 2
+applyOp :: Int -> [Int] -> Int
+applyOp 0 = sum
+applyOp 1 = product
+applyOp 2 = minimum
+applyOp 3 = maximum
+applyOp 5 = gt
+applyOp 6 = lt
+applyOp 7 = eq'
+
+
+boolToBin :: Bool -> Int
+boolToBin False = 0
+boolToBin True = 1
+
+eq' :: [Int] -> Int
+eq' (x:y:xs) = boolToBin (x == y)
+
+gt :: [Int] -> Int
+gt (x:y:xs) = boolToBin (x > y)
+
+lt :: [Int] -> Int
+lt (x:y:xs) = boolToBin (x < y)
+
+evalPacket :: Packet -> Int
+evalPacket (Literal _ _ n) = bitsToInt n
+evalPacket (Operator _ t ps) = applyOp (bitsToInt t) (evalPacket <$> ps)
+
 main :: IO ()
 main = do
   binaryInput <- fromMaybe [] <$> parseFromFile parseHexAsBinString "./src/day16.txt"
   print binaryInput
-  let packets = fromResult (Literal mempty mempty mempty) $ parseString parsePacket mempty binaryInput
-  print $ sumVersion packets
+  let packet = fromResult (Literal mempty mempty mempty) $ parseString parsePacket mempty binaryInput
+  print $ sumVersion packet
+  print $ evalPacket packet
